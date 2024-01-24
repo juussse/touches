@@ -9,7 +9,9 @@
       margin: 0;
       overflow: hidden;
     }
-
+    #TOUCHME {
+      height: 50vh;
+    }
     #output {
       position: absolute;
       top: 10px;
@@ -28,7 +30,7 @@
     const TOUCHME = document.getElementById('TOUCHME');
     const OUTPUT = document.getElementById('OUTPUT');
   
-    TOUCHME.addEventListener('touchstart', (evt) => {
+    TOUCHME.addEventListener('touchmove', (evt) => {
       evt.preventDefault();
       let touches = evt.touches;
       for (i = 0; i < touches.length; i++)
