@@ -11,8 +11,21 @@
     }
     #TOUCHME {
       height: 50vh;
+      position: relative;
     }
-    #output {
+    .touch-point {
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      border-radius: 50%;
+    }
+    .blue {
+      background-color: blue;
+    }
+    .red {
+      background-color: red;
+    }
+    #OUTPUT {
       position: absolute;
       top: 10px;
       left: 10px;
@@ -23,22 +36,41 @@
 </head>
 <body>
 
-  <div id="TOUCHME"> TOUCH ME </div>
+  <div id="TOUCHME">
+    <div id="blueDiv" class="touch-point blue"></div>
+    <div id="redDiv" class="touch-point red"></div>
+  </div>
   <div id="OUTPUT"></div>
 
 <script>
-    const TOUCHME = document.getElementById('TOUCHME');
+    const blueDiv = document.getElementById('blueDiv');
+    const redDiv = document.getElementById('redDiv');
     const OUTPUT = document.getElementById('OUTPUT');
   
-    TOUCHME.addEventListener('touchmove', (evt) => {
+    document.getElementById('TOUCHME').addEventListener('touchmove', (evt) => {
       evt.preventDefault();
+      OUTPUT.innerHTML = ''; // Limpiar el contenido antes de actualizar
+      
       let touches = evt.touches;
-      for (i = 0; i < touches.length; i++)
+      for (let i = 0; i < touches.length; i++) {
+        const touch = touches.item(i);
+        
+        // Mover los div existentes según el identificador
+        if (i === 0) {
+          blueDiv.style.left = touch.clientX + 'px';
+          blueDiv.style.top = touch.clientY + 'px';
+        } else if (i === 1) {
+          redDiv.style.left = touch.clientX + 'px';
+          redDiv.style.top = touch.clientY + 'px';
+        }
+        
+        // Mostrar el identificador en la salida
         OUTPUT.appendChild(
           document.createTextNode(
-            touches.item(i).identifier + " "
+            `Touch ${touch.identifier} `
           )
-        )
+        );
+      }
     });
 </script>
 
