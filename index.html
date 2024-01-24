@@ -189,12 +189,16 @@ function onTouchMove(event) {
     
 }
 function onTouchEnd(event) {
-    if(lado){
-        palancaR.x = palancaR.rx
-        palancaR.y = palancaR.ry
-    }else{
-        palancaL.x = palancaL.rx
-        palancaL.y = palancaL.ry
+    let touches = event.touches;
+    for (let i = 0; i < touches.length; i++) {
+        let touch = touches.item(i);
+        if(touch.clientX<SW/2){
+            palancaR.x = palancaR.rx
+            palancaR.y = palancaR.ry
+        }else{
+            palancaL.x = palancaL.rx
+            palancaL.y = palancaL.ry
+        }
     }
 }
 
