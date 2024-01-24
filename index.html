@@ -192,7 +192,7 @@ function onTouchEnd(event) {
     let touches = event.touches;
     for (let i = 0; i < touches.length; i++) {
         let touch = touches.item(i);
-        if(touch.clientX<SW/2){
+        if(touch.clientX>SW/2){
             palancaR.x = palancaR.rx
             palancaR.y = palancaR.ry
         }else{
