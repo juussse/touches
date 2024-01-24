@@ -138,7 +138,7 @@ function enviarDatosAlESP32() {
 }
 
 // Configurar el envío periódico cada 5 segundos (5000 milisegundos)
-setInterval(enviarDatosAlESP32, 90);
+<!-- setInterval(enviarDatosAlESP32, 90); -->
 
 
 
@@ -152,6 +152,8 @@ function distanciaEuclidiana(x1, y1, x2, y2) {
 
 function onTouchMove(event) {
     event.preventDefault();
+
+    //console.log(event.touches)
 
     let touches = event.touches;
     for (let i = 0; i < touches.length; i++) {
@@ -189,26 +191,21 @@ function onTouchMove(event) {
     
 }
 function onTouchEnd(event) {
-    let touches = event.touches;
-    for (let i = 0; i < touches.length; i++) {
-        let touch = touches.item(i);
-        if(touch.clientX>SW/2){
-            palancaR.x = palancaR.rx
-            palancaR.y = palancaR.ry
-        }else{
-            palancaL.x = palancaL.rx
-            palancaL.y = palancaL.ry
+    event.preventDefault();
+
+    let changedTouches = event.changedTouches;
+    console.log(changedTouches)
+    for (let i = 0; i < changedTouches.length; i++) {
+        let touch = changedTouches.item(i);
+
+        if (touch.clientX > SW / 2) {
+            palancaR.x = palancaR.rx;
+            palancaR.y = palancaR.ry;
+        } else {
+            palancaL.x = palancaL.rx;
+            palancaL.y = palancaL.ry;
         }
     }
-}
-
-function onTouchStart(event) {
-    const touch = event.touches[0]; // Obtener el primer toque
-    const x = touch.clientX;
-
-    lado=x>SW/2
-        
-    
 }
 
 
@@ -217,7 +214,6 @@ function onTouchStart(event) {
 
 // Agregar el evento de inicio de toque al canvas
 canvas.addEventListener('touchmove', onTouchMove);
-canvas.addEventListener('touchstart', onTouchStart);
 canvas.addEventListener('touchend', onTouchEnd);
 
 
