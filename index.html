@@ -21,39 +21,23 @@
 </head>
 <body>
 
-<div id="output">Status: </div>
+  <div id="TOUCHME"> TOUCH ME </div>
+  <div id="OUTPUT"></div>
 
 <script>
-  const outputElement = document.getElementById('output');
-
-  window.addEventListener('touchmove', handleTouchMove, { passive: false });
-
-  function handleTouchMove(event) {
-    event.preventDefault(); // Evitar el comportamiento por defecto del navegador
-
-    const touches = event.touches;
-
-    if (touches.length === 2) {
-      const touch1 = touches[0];
-      const touch2 = touches[1];
-
-      const scale = getDistance(touch1, touch2) / 100; // Puedes ajustar este valor según tu necesidad
-      const deltaX = touch2.clientX - touch1.clientX;
-      const deltaY = touch2.clientY - touch1.clientY;
-
-      updateOutput(`Scale: ${scale.toFixed(2)}, DeltaX: ${deltaX.toFixed(2)}, DeltaY: ${deltaY.toFixed(2)}`);
-    }
-  }
-
-  function getDistance(touch1, touch2) {
-    const dx = touch2.clientX - touch1.clientX;
-    const dy = touch2.clientY - touch1.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  function updateOutput(message) {
-    outputElement.textContent = 'Status: ' + message;
-  }
+    const TOUCHME = document.getElementById('TOUCHME');
+    const OUTPUT = document.getElementById('OUTPUT');
+  
+    TOUCHME.addEventListener('touchstart', (evt) => {
+      evt.preventDefault();
+      let touches = evt.touches;
+      for (i = 0; i < touches.length; i++)
+        OUTPUT.appendChild(
+          document.createTextNode(
+            touches.item(i).identifier + " "
+          )
+        )
+    });
 </script>
 
 </body>
