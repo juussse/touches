@@ -4,245 +4,282 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-    
-body {
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #0c0b0b;
-}
-
-canvas{
-    position: absolute;
-    top: 0;
-    left: 0;
-}
+        
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #0c0b0b;
+        }
+        #imageContainer {
+            max-width: 100%;
+            max-height: 100%;
+            overflow: hidden;
+        }
+        
+        #image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        canvas{
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
     </style>
 </head>
 <body>
     <canvas id="pantalla"></canvas>
-
-
-<script>
-    const canvas = document.getElementById("pantalla")
-const ctx = canvas.getContext("2d")
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-
-const SW = window.innerWidth
-const SH = window.innerHeight
-
-let lado = false
-
-
-// Función para dibujar un círculo relleno
-function drawFilledCircle(ctx, x, y, radius, color) {
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.closePath();
-}
-
-// Función para dibujar un círculo sin relleno
-function drawStrokedCircle(ctx, x, y, radius, color, lineWidth) {
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
-    ctx.stroke();
-    ctx.closePath();
-}
-// Función para dibujar un rectángulo relleno
-function drawFilledRectangle(ctx, x, y, width, height, color) {
-    ctx.beginPath();
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, width, height);
-    ctx.closePath();
-}
-
-// Función para dibujar un rectángulo sin relleno
-function drawStrokedRectangle(ctx, x, y, width, height, color, lineWidth) {
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
-    ctx.rect(x, y, width, height);
-    ctx.stroke();
-    ctx.closePath();
-}
-
-
-// Función para escribir texto en el centro
-function writeText(ctx, text, x, y, font, color) {
-    ctx.font = font;
-    ctx.fillStyle = color;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text, x, y);
-}
-
-const palancaL = {
-    x: SW/4*1,
-    y: SH/2,
-    rx:SW/4*1,
-    ry:SH/2,
-    w: 100,
-    h: 30,
-    value: 0,
-};
-const palancaR = {
-    x: SW/4*3,
-    y: SH/2,
-    rx:SW/4*3,
-    ry:SH/2,
-    w: 30,
-    h: 100,
-    value: 0,
-};
-
-function enviarDatosAlESP32() {
-    // Crear un objeto JSON con datos de ejemplo
-    var datos = {
-        x: (palancaL.x-palancaL.rx)/(SH/10*3),
-        y: (palancaL.y-palancaL.ry)/(SH/10*3),
-        x2: (palancaR.x-palancaR.rx)/(SH/10*3),
-        y2: (palancaR.y-palancaR.ry)/(SH/10*3)
-    };
-
-    // Configurar la URL del servidor ESP32
-    var urlESP32 = 'http://192.168.4.1/datos';  // Asegúrate de cambiar la dirección IP y el puerto según tu configuración
-
-    // Configurar la solicitud
-    fetch(urlESP32, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(datos)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Respuesta del ESP32:', data);
-    })
-    .catch(error => {
-        console.error('Error al enviar datos:', error);
-    });
-
     
-}
-
-// Configurar el envío periódico cada 5 segundos (5000 milisegundos)
-<!-- setInterval(enviarDatosAlESP32, 90); -->
-
-
-
-
-function distanciaEuclidiana(x1, y1, x2, y2) {
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-}
-
-
-
-
-function onTouchMove(event) {
-    event.preventDefault();
-
-    //console.log(event.touches)
-
-    let touches = event.touches;
-    for (let i = 0; i < touches.length; i++) {
-        let touch = touches.item(i);
-        // const touch = event.touches[0]; // Obtener el primer toque
-        const x = touch.clientX;
-        const y = touch.clientY;
-
+    
+    <div id="imageContainer">
+        <img id="image" src="" alt="Server Image">
+    </div>
+    
+    
+    <script>
+        const canvas = document.getElementById("pantalla")
+        const ctx = canvas.getContext("2d")
         
-        if(x<SW/2){
-            if(distanciaEuclidiana(palancaL.rx, palancaL.ry, x,y) < SH/10*3){
-                palancaL.x = x
-                palancaL.y = y
-            }else{
-                let dx = x-palancaL.rx, dy = y-palancaL.ry
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
         
-                let angle = Math.atan2(dy,dx)
         
-                palancaL.x = palancaL.rx+(SH/10*3*Math.cos(angle))
-                palancaL.y = palancaL.ry+(SH/10*3*Math.sin(angle))
+        const SW = window.innerWidth
+        const SH = window.innerHeight
+        
+        let lado = false
+        
+        
+        // Función para dibujar un círculo relleno
+        function drawFilledCircle(ctx, x, y, radius, color) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.closePath();
+        }
+        
+        // Función para dibujar un círculo sin relleno
+        function drawStrokedCircle(ctx, x, y, radius, color, lineWidth) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.stroke();
+            ctx.closePath();
+        }
+        // Función para dibujar un rectángulo relleno
+        function drawFilledRectangle(ctx, x, y, width, height, color) {
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, width, height);
+            ctx.closePath();
+        }
+        
+        // Función para dibujar un rectángulo sin relleno
+        function drawStrokedRectangle(ctx, x, y, width, height, color, lineWidth) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.rect(x, y, width, height);
+            ctx.stroke();
+            ctx.closePath();
+        }
+        
+        
+        // Función para escribir texto en el centro
+        function writeText(ctx, text, x, y, font, color) {
+            ctx.font = font;
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
+        
+        const palancaL = {
+            x: SW/4*1,
+            y: SH/2,
+            rx:SW/4*1,
+            ry:SH/2,
+            w: 100,
+            h: 30,
+            value: 0,
+        };
+        const palancaR = {
+            x: SW/4*3,
+            y: SH/2,
+            rx:SW/4*3,
+            ry:SH/2,
+            w: 30,
+            h: 100,
+            value: 0,
+        };
+        
+        function enviarDatosAlESP32() {
+            // Crear un objeto JSON con datos de ejemplo
+            var datos = {
+                x: (palancaL.x-palancaL.rx)/(SH/10*3),
+                y: (palancaL.y-palancaL.ry)/(SH/10*3),
+                x2: (palancaR.x-palancaR.rx)/(SH/10*3),
+                y2: (palancaR.y-palancaR.ry)/(SH/10*3)
+            };
+            
+            // Configurar la URL del servidor ESP32
+            var urlESP32 = 'http://192.168.4.1/datos';  // Asegúrate de cambiar la dirección IP y el puerto según tu configuración
+            
+            // Configurar la solicitud
+            fetch(urlESP32, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Respuesta del ESP32:', data);
+            })
+            .catch(error => {
+                console.error('Error al enviar datos:', error);
+            });
+            
+            
+        }
+        
+        // Configurar el envío periódico cada 5 segundos (5000 milisegundos)
+        <!-- setInterval(enviarDatosAlESP32, 90); -->
+        
+        
+        
+        
+        function distanciaEuclidiana(x1, y1, x2, y2) {
+            return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        }
+        
+        
+        
+        
+        function onTouchMove(event) {
+            event.preventDefault();
+            
+            //console.log(event.touches)
+            
+            let touches = event.touches;
+            for (let i = 0; i < touches.length; i++) {
+                let touch = touches.item(i);
+                // const touch = event.touches[0]; // Obtener el primer toque
+                const x = touch.clientX;
+                const y = touch.clientY;
+                
+                
+                if(x<SW/2){
+                    if(distanciaEuclidiana(palancaL.rx, palancaL.ry, x,y) < SH/10*3){
+                        palancaL.x = x
+                        palancaL.y = y
+                    }else{
+                        let dx = x-palancaL.rx, dy = y-palancaL.ry
+                        
+                        let angle = Math.atan2(dy,dx)
+                        
+                        palancaL.x = palancaL.rx+(SH/10*3*Math.cos(angle))
+                        palancaL.y = palancaL.ry+(SH/10*3*Math.sin(angle))
+                    }
+                }else if(distanciaEuclidiana(palancaR.rx, palancaR.ry, x,y) < SH/10*3){
+                    palancaR.x = x
+                    palancaR.y = y
+                }else{
+                    let dx = x-palancaR.rx, dy = y-palancaR.ry
+                    
+                    let angle = Math.atan2(dy,dx)
+                    
+                    palancaR.x = palancaR.rx+(SH/10*3*Math.cos(angle))
+                    palancaR.y = palancaR.ry+(SH/10*3*Math.sin(angle))
+                }
             }
-        }else if(distanciaEuclidiana(palancaR.rx, palancaR.ry, x,y) < SH/10*3){
-            palancaR.x = x
-            palancaR.y = y
-        }else{
-            let dx = x-palancaR.rx, dy = y-palancaR.ry
-
-            let angle = Math.atan2(dy,dx)
-
-            palancaR.x = palancaR.rx+(SH/10*3*Math.cos(angle))
-            palancaR.y = palancaR.ry+(SH/10*3*Math.sin(angle))
+            
+            
         }
-    }
-
-    
-}
-function onTouchEnd(event) {
-    event.preventDefault();
-
-    let changedTouches = event.changedTouches;
-    console.log(changedTouches)
-    for (let i = 0; i < changedTouches.length; i++) {
-        let touch = changedTouches.item(i);
-
-        if (touch.clientX > SW / 2) {
-            palancaR.x = palancaR.rx;
-            palancaR.y = palancaR.ry;
-        } else {
-            palancaL.x = palancaL.rx;
-            palancaL.y = palancaL.ry;
+        function onTouchEnd(event) {
+            event.preventDefault();
+            
+            let changedTouches = event.changedTouches;
+            console.log(changedTouches)
+            for (let i = 0; i < changedTouches.length; i++) {
+                let touch = changedTouches.item(i);
+                
+                if (touch.clientX > SW / 2) {
+                    palancaR.x = palancaR.rx;
+                    palancaR.y = palancaR.ry;
+                } else {
+                    palancaL.x = palancaL.rx;
+                    palancaL.y = palancaL.ry;
+                }
+            }
         }
-    }
-}
-
-
-
-
-
-// Agregar el evento de inicio de toque al canvas
-canvas.addEventListener('touchmove', onTouchMove);
-canvas.addEventListener('touchend', onTouchEnd);
-
-
-
-function actualizarPantalla() {
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    drawStrokedCircle(ctx, SW/4, SH/2, SH/10*3, "white", 8)
-    drawStrokedCircle(ctx, SW/4*3, SH/2, SH/10*3, "white", 8)
-
-
-    //drawFilledRectangle(ctx, palancaL.x-palancaL.w/2, palancaL.y-palancaL.h/2, palancaL.w, palancaL.h, "gray")
-    //drawFilledRectangle(ctx, palancaR.x-palancaR.w/2, palancaR.y-palancaR.h/2, palancaR.w, palancaR.h, "gray")
-
-    drawFilledCircle(ctx, palancaL.x, palancaL.y, SH/15*2, "gray")
-
-
-    drawFilledCircle(ctx, palancaR.x, palancaR.y, SH/15*2, "gray")
-
-
-    // Solicitar el próximo frame de animación
-    requestAnimationFrame(actualizarPantalla);
-}
-
-
-
-// Iniciar el bucle de animación
-requestAnimationFrame(actualizarPantalla);
+        
+        
+        
+        
+        
+        // Agregar el evento de inicio de toque al canvas
+        canvas.addEventListener('touchmove', onTouchMove);
+        canvas.addEventListener('touchend', onTouchEnd);
+        
+        
+        
+        function actualizarPantalla() {
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawStrokedCircle(ctx, SW/4, SH/2, SH/10*3, "white", 8)
+            drawStrokedCircle(ctx, SW/4*3, SH/2, SH/10*3, "white", 8)
+            
+            
+            //drawFilledRectangle(ctx, palancaL.x-palancaL.w/2, palancaL.y-palancaL.h/2, palancaL.w, palancaL.h, "gray")
+            //drawFilledRectangle(ctx, palancaR.x-palancaR.w/2, palancaR.y-palancaR.h/2, palancaR.w, palancaR.h, "gray")
+            
+            drawFilledCircle(ctx, palancaL.x, palancaL.y, SH/15*2, "gray")
+            
+            
+            drawFilledCircle(ctx, palancaR.x, palancaR.y, SH/15*2, "gray")
+            
+            
+            // Solicitar el próximo frame de animación
+            requestAnimationFrame(actualizarPantalla);
+        }
+        
+        
+        const imageElement = document.getElementById('image');
+        
+        function updateImage() {
+            const imageUrl = 'https://adza12.pythonanywhere.com/get_image';
+            
+            // Hacer la solicitud GET para obtener la imagen
+            fetch(imageUrl)
+            .then(response => response.blob())
+            .then(blob => {
+                // Crear una URL del objeto blob y asignarla a la imagen
+                const imageUrl = URL.createObjectURL(blob);
+                imageElement.src = imageUrl;
+            })
+            .catch(error => {
+                console.error('Error al obtener la imagen:', error);
+            });
+        }
+        
+        // Actualiza la imagen cada 1000 ms (1 segundo)
+        setInterval(updateImage, 60);
+        
+        
+        // Iniciar el bucle de animación
+        requestAnimationFrame(actualizarPantalla);
     </script>
 </body>
 </html>
